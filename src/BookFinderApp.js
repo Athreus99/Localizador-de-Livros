@@ -1,3 +1,4 @@
+// src/BookFinderApp.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import SearchBar from './components/SearchBar';
@@ -15,7 +16,12 @@ const BookFinderApp = () => {
       const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
       setBooks(response.data.items);
     } catch (error) {
-      console.error('Erro ao buscar livros:', error);
+      if (error.response && error.response.status === 429) {
+        console.error('Muitas solicitações. Tentando novamente em 1 segundo...');
+        setTimeout(searchBooks, 1000); // Tenta novamente após 1 segundo
+      } else {
+        console.error('Erro ao buscar livros:', error);
+      }
     }
     setLoading(false);
   };
